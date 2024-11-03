@@ -1,3 +1,5 @@
+using DotNaut.Ontology;
+
 namespace DotNaut.Lab;
 
 /// <summary>
@@ -29,4 +31,14 @@ public interface ISample
     /// levels (dev->staging->production). But also string[].
     /// </summary>
     bool IsRealWorld { get; }
+}
+
+/// <summary>
+/// TODO:Another implementation of the sample.
+/// </summary>
+/// <typeparam name="TEntity"></typeparam>
+public interface ISample<TEntity>
+    : INamed
+{
+
 }
