@@ -1,4 +1,4 @@
-namespace DotNaut;
+namespace DotNaut.Lab;
 
 /// <summary>
 /// TODO:Samples are an ubiquituos language for business "instances".

@@ -1,4 +1,4 @@
-namespace DotNaut;
+namespace DotNaut.Lab;
 
 public interface ISpecification
 {

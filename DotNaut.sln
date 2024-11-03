@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNaut.Web.Browser.Labs", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNaut.Specs", "DotNaut.Specs\DotNaut.Specs.csproj", "{8792E449-405D-49CA-947C-20CD02CCDED4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNaut.Quality", "DotNaut.Quality\DotNaut.Quality.csproj", "{632151E3-6ADA-482F-A21E-61902C295DE8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNaut", "DotNaut\DotNaut.csproj", "{A685EBDD-B49D-4B44-A8C2-50EAE6A2506D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNaut.Course", "DotNaut.Course\DotNaut.Course.csproj", "{6EBDE371-4104-495D-A7C8-626E8920E6D9}"
@@ -30,10 +28,6 @@ Global
 		{8792E449-405D-49CA-947C-20CD02CCDED4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8792E449-405D-49CA-947C-20CD02CCDED4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8792E449-405D-49CA-947C-20CD02CCDED4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{632151E3-6ADA-482F-A21E-61902C295DE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{632151E3-6ADA-482F-A21E-61902C295DE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{632151E3-6ADA-482F-A21E-61902C295DE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{632151E3-6ADA-482F-A21E-61902C295DE8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A685EBDD-B49D-4B44-A8C2-50EAE6A2506D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A685EBDD-B49D-4B44-A8C2-50EAE6A2506D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A685EBDD-B49D-4B44-A8C2-50EAE6A2506D}.Release|Any CPU.ActiveCfg = Release|Any CPU
