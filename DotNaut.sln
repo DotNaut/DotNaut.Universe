@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNaut.Quality", "DotNaut.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNaut", "DotNaut\DotNaut.csproj", "{A685EBDD-B49D-4B44-A8C2-50EAE6A2506D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNaut.Course", "DotNaut.Course\DotNaut.Course.csproj", "{6EBDE371-4104-495D-A7C8-626E8920E6D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{A685EBDD-B49D-4B44-A8C2-50EAE6A2506D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A685EBDD-B49D-4B44-A8C2-50EAE6A2506D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A685EBDD-B49D-4B44-A8C2-50EAE6A2506D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EBDE371-4104-495D-A7C8-626E8920E6D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EBDE371-4104-495D-A7C8-626E8920E6D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EBDE371-4104-495D-A7C8-626E8920E6D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EBDE371-4104-495D-A7C8-626E8920E6D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
