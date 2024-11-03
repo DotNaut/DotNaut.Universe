@@ -1,0 +1,397 @@
+@page "/labs/samples"
+
+<h1>Samples</h1>
+
+<section>
+    <h2>Implementing samples</h2>
+
+    <p>
+        The essential idea of this framework is to have a samples dictionary. Each entry in this 
+        dictionary just associates some natural key with the sample object definition. Even such 
+        a simple implementation is a good base to get some advantages.
+    </p>
+
+    <p>
+        Firstly, it is pretty good for communication between business customers, developers and
+        testers. Like an ubiquitous language in DDD. Instead of using the complex definitions of
+        some sample each time we mention it, we can use its natural key. Not a "customer service
+        manager from Seattle with a permission to access ...", just "Diane".
+    </p>
+
+    <p>
+        Hopefully you've seen "Coach Carter" movie and how he used ladies' names as an
+        abbreviation for different game-play tactic cases :)
+    </p>
+
+    <blockquote>
+        I have a sister, her name's Diane. She was always on my case about every little thing.
+        Matter of fact, she still is. She was always in my face. So when I call "Diane", we're
+        gonna play straight man-to-man pressure defense.
+    </blockquote>
+
+    <p>
+        And this works not only in verbal communication. In documentation we can also reference
+        these cases using their respective keys. And of course such dictionary is perfect for
+        executable specifications like BDD scenarios and their steps which are looking as: 
+        "When logged as Diane".
+    </p>
+
+    <p>
+        Secondly it greatly helps us in development. Having some edge case defined as a sample,
+        there is no need to reproduce its conditions again and again in each unit-test with a
+        probability to make a mistake. We can just reuse a sample that is already defined.
+    </p>
+
+    <p>
+        Also very often the same domain entity has many representations in a real application. 
+        I.e. a user entity may be materialized into many classes like UserViewModel,
+        AddUserRequest, UpdateUserRequest, DeleteUserRequest, SignInRequest, SignUpRequest, 
+        BlockUserRequest and many others. Each class in this list represents some part of the
+        user entity and may have a lot of the same properties as another classes in this list.
+    </p>
+
+    <p>
+        Sample class can be used to define the entity itself with all its details. It becomes
+        a single point of schema definition, documentation, etc. All other projection classes
+        will just reference this sample and this helps to keep all models consistent.
+    </p>
+
+    <p>
+        And even when we come to deployment of our application the samples dictionaries also help.
+        Because it's pretty easy to deploy them as soon as they already exist. And we get all our
+        lifecycle consistent, because the same entities we defined in specifications do exist in
+        our staging application as well.
+    </p>
+</section> 
+
+<section>
+    <h2>STEP 0: Preamble</h2>
+
+    <p>
+        Let's suppose that we are working with some Person entity in our domain that has many related
+        code classes like PersonViewModel, AddPersonRequest, UpdatePersonRequest with a bunch of similar
+        properties.
+    </p>
+</section>
+
+<section>
+    <h2>STEP 1: Create sample class</h2>
+
+    <p>
+        Firstly, let's create an empty PersonSample class for this entity in the unit-testing project.
+        Here we are using "Sample" suffix convention.        
+    </p>
+</section>
+
+<section>
+    <h2>STEP 2: Define properties</h2>
+
+    <p>
+        Next we should describe all properties that can exists in any Person-related classes (like
+        PersonViewModel, AddPersonRequest and others mentioned above) in this class. Doing this we will
+        also ensure that properties naming for all these classes is consistent.
+    </p>
+
+    <p>
+        An additional advantage is that we can place XML documentation only in this PersonSample 
+        class. All other classes can reference it. I.e. if we have a Name property that coexists in
+        all classes, there is no need to document it again and again. We just do it once.
+    </p>
+
+    <p>
+        If any of these properties are initialized in the constructors, we should initialize them
+        in our PersonSample's constructor as well.
+    </p>
+</section>
+
+<section>
+    <h2>STEP 3: ISample interface</h2>
+
+    <p>
+        Having properties defined, we can implement **ISample** interface using them like in the 
+        sample below.
+    </p>
+
+    <code>
+        <pre>
+            string ISample.Name => this.Name;
+            string ISample.Description => $"{this.Name} from department {this.Department.Name}";
+        </pre>
+    </code>
+
+    <p>
+        With this interface we can address our samples using some natural key (Name getter that 
+        returns PersonName as a key in the sample above) and Description that is very useful for
+        integration with BDD tests for instance.
+    </p>
+</section>
+
+<section>
+    <h2>STEP 4: Adding samples</h2>
+
+    <p>
+        Having the properties defined and initialized in constructor we can define particular
+        samples as static properties in PersonSample class. These objects are a kind of a samples
+        vocabulary for developers that they share in the code.
+    </p>
+
+    <code>
+        <pre>
+            public static PersonSample StanRed => new PersonSample()
+            {
+                Id = 1,
+                Name = "Stan RED",
+            };
+        </pre>
+    </code>
+
+    <p>
+        Note that this is not just an instance. We're using C# 6.0 feature "=>" here and it is 
+        generating new instance each time. This helps to avoid conflicts when testing, because
+        some unit-tests may alter the instance.
+    </p>
+</section>
+
+<section>
+    <h2>STEP 5: Samples collection</h2>
+
+    <p>
+        All these samples can be assembled then into a collection by adding 
+        <code>Samples&lt;PersonSample&gt;</code> property that will automatically include all samples
+        defined in the class before.
+    </p>
+
+    <code>
+        <pre>
+            public static readonly Samples&lt;PersonSample&gt; Samples = Samples&lt;PersonSample&gt;.FromProperties();
+        </pre>
+    </code>
+
+    <p>
+        This property is helpful to filter samples subsets using LINQ in unit-tests:
+    </p>
+
+    <code>
+        <pre>
+            var subset = PersonSample.Samples.Where(person =&gt; person.Department.Name == "IT");
+        </pre>
+    </code>
+
+    <p>
+        And also to access samples dictionaries using natural key, like it is required by BDD
+        scenarios (SpecFlow step code below).
+    </p>
+
+    <code>
+        <pre>
+            [Given("Person (.*)")]
+            public void GivenPerson(string personName)
+            {
+                var person = Person.Samples[personName];
+                ...
+            }
+        </pre>
+    </code>
+
+    <p>
+        Also these samples collection may be fetched from Powershell deployment scripts to share 
+        the same samples library between tests and deployment routines.
+    </p>
+
+    <code>
+        <pre>
+            [ProjectName.Persons.PersonSample]::Samples | Add-MongoDocument Person -As ProjectName.Persons.PersonRecord
+        </pre>
+    </code>
+</section>
+
+<section>
+    <h2>STEP 6: Shared models</h2>
+
+    <p>
+        Describe how your classes are sharing their properties using 
+        <code>SampleCast&lt;PersonSample&gt;</code> tool.
+    </p>
+
+    <code>
+        <pre>
+            public static SampleCast&lt;PersonSample&gt; ModelBase = new SampleCast&lt;PersonSample&gt;()
+            {
+                person =&gt; person.Name,
+                person =&gt; person.Vertical
+            };
+
+            public static SampleCast&lt;PersonSample&gt; ModelInsert = new SampleCast&lt;PersonSample&gt;()
+            {
+                ModelBase
+            };
+
+            public static SampleCast&lt;PersonSample&gt; ModelUpdate = new SampleCast&lt;PersonSample&gt;()
+            {
+                ModelBase,
+
+                person =&gt; person.Id
+            };
+        </pre>
+    </code>
+
+    <p>
+        In this sample we described some basic "mixin" called ModelBase that is subsequently added 
+        to ModelInsert and ModelUpdate schemas. This looks like an inheritance but works in a more
+        flexible way like we have a multiple inheritance supported.
+    </p>
+
+    <p>
+        We can even share some common properties between many samples. For example, the typical
+        database entity with CreatedBy/UpdatedBy fields may be reused this way:
+    </p>
+
+    <code>
+        <pre>
+            public class DbEntitySample
+            {
+                public DateTime Created { get; set; }
+                public string CreatedBy { get; set; }
+                public DateTime Updated { get; set; }
+                public string UpdatedBy { get; set; }
+
+                public static SampleCast&lt;DbEntitySample&gt; ModelAudit = new SampleCast&lt;DbEntitySample&gt;()
+                {
+                    entity =&gt; entity.Created,
+                    entity =&gt; entity.CreatedBy,
+                    entity =&gt; entity.Updated,
+                    entity =&gt; entity.UpdatedBy
+                };
+            }
+
+            public class TransactionSample
+            {
+                ...Properties...
+
+                public static SampleCast&lt;TransactionSample&gt; ModelBase = new SampleCast&lt;TransactionSample&gt;()
+                {
+                    transaction =&gt; transaction.Amount,
+                    transaction =&gt; transaction.Currency
+                };
+
+                public static SampleCast&lt;TransactionSample&gt; ModelEntity = new SampleCast&lt;TransactionSample&gt;()
+                {
+                    ModelBase,
+                    DbEntitySample.ModelAudit
+                };
+            }
+        </pre>
+    </code>
+
+    <p>
+        So we have a sample here that "inherits" two models - TransactionSample.ModelBase and 
+        DbEntitySample and this can barely be defined using regular inheritance.
+    </p>
+</section>
+
+<section>
+    <h2>STEP 7: Testing shared models</h2>
+
+    <p>
+        Using this definitions we can get unit-tests those keep an eye on these schemas
+        compliance. As we seen before, sometimes compile-time control using inheritance/interfaces
+        is too way complicated and we can replace it with test-time checks.
+    </p>
+
+    <code>
+        <pre>
+            internal static IEnumerable Casts
+            {
+                get
+                {
+                    yield return new TestCaseData(PersonSample.Model, typeof(Person)).SetName("Model");
+                    yield return new TestCaseData(PersonSample.ModelUpdate, typeof(UpdatePerson)).SetName("ModelUpdate");
+                }
+            }
+
+            [Test, TestCaseSource(nameof(Casts))]
+            public void Cast_succeeds_without_exception(SampleCast&lt;PersonSample&gt; cast, Type targetType)
+            {
+                cast.ShouldBeAbleToCast(PersonSample.StanRed, targetType);
+            }            
+        </pre>
+    </code>
+
+    <p>
+        But all these tests are already implemented in the **** that is described in validation 
+        recipes.
+    </p>
+</section>
+
+<section>
+    <h2>STEP 8: Casting</h2>
+
+    <p>
+        This models can also help to automate casting. For example, if we add this implicit cast
+        operator to our PersonSample class:
+    </p>
+
+    <code>
+        <pre>
+            public static implicit operator UpdatePersonRequest(PersonSample sample)
+            {
+                return Model.As&lt;Person&gt;(sample);
+            }
+        </pre>
+    </code>
+
+    <p>
+        Then we can use it later in our tests as a simple assignement that will casts from our
+        PersonSample instance to any particular class:
+    </p>
+
+    <code>
+        <pre>
+            UpdatePersonRequest request = PersonSample.StanRed;
+        </pre>
+    </code>
+</section>
+
+<section>
+    <h2>STEP 9: Adding helpers</h2>
+
+    <p>
+        When we need a customized sample instance it might be done with assistance of the Builder
+        design pattern, i.e. a fluent interface.
+    </p>
+
+    <code>
+        <pre>
+            public PersonSample WithVertical(Vertical vertical)
+            {
+                Vertical = vertical;
+                return this;
+            }
+        </pre>
+    </code>
+
+    <p>
+        And sample customization will look like:
+    </p>
+
+    <code>
+        <pre>
+            UpdatePersonRequest request = PersonSample.StanRed
+                .WithVertical(...)
+                .WithAnotherOption(...)
+            ;
+        </pre>
+    </code>
+</section>
+
+<section>
+    <h2>InBox</h2>
+
+    <p>
+        Sample can be a good option to start the application design. For example if we are working
+        with person firstly we can create IPerson entity interface (it can be empty), secondly some
+        PersonSample class that implements <code>ISample&lt;IPerson&gt;</code> and then we can start
+        playing with it (maybe inherit some specific instance like JhonSmith from PersonSample).
+        Specific persons if implemented in a dedicated class, can be ISampleFactory&lt;IPerson&gt;.
+    </p>
+</section>
