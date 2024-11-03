@@ -1,5 +1,44 @@
 ﻿@page "/"
+@using DotNaut.Lab
+@using DotNaut.Ontology
+@using DotNaut.Social
 
 <PageTitle>DotNaut Course</PageTitle>
 
 <h1>DotNaut Course</h1>
+
+<ol>
+    <li>
+        Creating Specs application using DotNaut template
+        (<code>dotnet new specs ...</code>).
+        We start to define the project and dissect the environment.
+    </li>
+    <li>
+        As good entity to start is a person. According to the Pericode/Specs concept
+        (to introduce), we've created a meta-application, which always has at lease
+        one entity - the person, which has created the application.
+    </li>
+    <li>
+        We describe ideas in a form of interfaces (to be linked with philosophical ideas).
+    </li>
+    <li>
+        Almost every person has a name. But not only persons have names. Organizations
+        have names too. So we've created a @(typeof(INamed).Name) interface. 
+        And then @(typeof(IPerson).Name) and @(typeof(IOrganization).Name) interfaces,
+        which implement it.
+    </li>
+</ol>
+
+@code {
+    public class DrArt
+        : ISample<IPerson>
+    {
+        string INamed.Get() => "DrArt";
+    }
+
+    public class DotNautCom
+        : ISample<IOrganization>
+    {
+        string INamed.Get() => "DotNaut.com";
+    }
+}
