@@ -1,0 +1,11 @@
+@if (System.Threading.Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName == Lang) {
+    @ChildContent
+}
+
+@code {
+    [Parameter]
+    public required string Lang { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
