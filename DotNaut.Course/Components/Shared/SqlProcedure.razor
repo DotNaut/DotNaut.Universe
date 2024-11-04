@@ -1,0 +1,42 @@
+DROP PROCEDURE IF EXISTS
+    @FullName
+GO
+
+CREATE PROCEDURE @FullName
+AS
+SET NOCOUNT ON
+
+@ChildContent
+
+RETURN 0
+GO
+
+@if (Grants != null)
+{
+    @foreach (var grant in Grants)
+    {
+        @* TODO:A dedicated component for grant*@
+        <text>GRANT EXECUTE ON @FullName TO @grant@(EOL)</text>
+        <text>GO@(EOL)@(EOL)</text>
+    }
+}
+
+@code {
+    public string EOL => "\r\n";
+
+    // TODO: Schema should be taken from the provider (ISqlConvention, etc). 
+    //   But the whole procedure template can depends on the SQL provider. So it can be a part of this template as well.
+    [Parameter]
+    public string Schema { get; set; } = "dbo";
+
+    [Parameter]
+    public required string Name { get; set; }
+
+    public string FullName => $"[{Schema}].[{Name}]";
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string[]? Grants { get; set; }    
+}

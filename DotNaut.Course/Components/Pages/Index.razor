@@ -39,6 +39,12 @@
     </li>
 </ol>
 
+<pre>
+    <SqlProcedure Name="GetPerson" Grants=@(["DrArt","StanRed"])>
+        SELECT * FROM [Pericode].[Person]
+    </SqlProcedure>
+</pre>
+
 @code {
     public class DrArt
         : ISample<IPerson>
