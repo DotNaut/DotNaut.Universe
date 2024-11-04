@@ -7,5 +7,6 @@ namespace DotNaut.Application.Composition;
 /// </remarks>
 public interface IComposition
 {
+    // TODO: ICompositionContext vs IServiceCollection?
     void Compose(ICompositionContext context);
 }
