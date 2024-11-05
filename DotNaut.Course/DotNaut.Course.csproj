@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DotNaut\DotNaut.csproj" />
+    <ProjectReference Include="..\DotNaut.Specs.Components\DotNaut.Specs.Components.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
