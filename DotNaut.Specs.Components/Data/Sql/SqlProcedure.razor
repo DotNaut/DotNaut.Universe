@@ -1,11 +1,14 @@
 @namespace DotNaut.Data.Sql
+@using System.Reflection
+@using System.Text
 @inherits DotNaut.Data.Sql.SqlObject
 
 DROP PROCEDURE IF EXISTS
-    @FullName
+@FullName
 GO
 
 CREATE PROCEDURE @FullName
+@FormatArguments(Request.GetProperties())
 AS
 SET NOCOUNT ON
 
@@ -26,8 +29,39 @@ GO
 
 @code {
     [Parameter]
+    public Type? Request { get; set; }
+
+    [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
-    public string[]? Grants { get; set; }    
+    public string[]? Grants { get; set; }
+
+    public string FormatList<T>(IEnumerable<T> list, Func<T, string> format, string delimiter)
+    {
+        var builder = new StringBuilder();
+        var notFirst = false;
+
+        foreach (var item in list)
+        {
+            if (notFirst)
+            {
+                builder.Append(delimiter);
+            }
+            else
+            {
+                notFirst = true;
+            }
+
+            builder.Append(format(item));
+        }
+
+        return builder.ToString();
+    }
+
+    public string FormatArguments(IEnumerable<PropertyInfo> properties) => FormatList(
+        properties,
+        item => $"\t@{item.Name} {item.PropertyType.Name}",
+        $",{EOL}"
+    );
 }
