@@ -1,4 +1,5 @@
 @namespace DotNaut.Data.Sql
+@inherits DotNaut.Data.Sql.SqlObject
 
 DROP PROCEDURE IF EXISTS
     @FullName
@@ -24,18 +25,6 @@ GO
 }
 
 @code {
-    public string EOL => "\r\n";
-
-    // TODO: Schema should be taken from the provider (ISqlConvention, etc). 
-    //   But the whole procedure template can depends on the SQL provider. So it can be a part of this template as well.
-    [Parameter]
-    public string Schema { get; set; } = "dbo";
-
-    [Parameter]
-    public required string Name { get; set; }
-
-    public string FullName => $"[{Schema}].[{Name}]";
-
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
