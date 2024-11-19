@@ -1,5 +1,8 @@
+@using Microsoft.AspNetCore.Components
+
 @namespace DotNaut.Content
 @typeparam TItem
+
 
 @{
     var parentType = Parent.GetType();
@@ -9,8 +12,8 @@
         .Where(type => type.FullName.StartsWith($"{parentType.Namespace}."))
         .Where(type => typeof(TItem).IsAssignableFrom(type))
         .Select(type => (
-            Project: (DotNaut.Project.IProject)Activator.CreateInstance(type),
-            Route: type.GetCustomAttributes(false).OfType<Microsoft.AspNetCore.Components.RouteAttribute>().FirstOrDefault()
+            Project: (TItem)Activator.CreateInstance(type),
+            Route: type.GetCustomAttributes(false).OfType<RouteAttribute>().FirstOrDefault()
         ))
     ;
 }
