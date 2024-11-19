@@ -1,0 +1,12 @@
+@namespace DotNaut.Content
+
+@using DotNaut.Ontology
+
+<PageTitle>@Source.Get()</PageTitle>
+<h1>@Source.Get()</h1>
+
+@code
+{
+    [Parameter]
+    public INamed Source { get; set; }
+}
