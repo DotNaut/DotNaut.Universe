@@ -1,0 +1,93 @@
+@*
+    TODO:This is a primitive implementation of a decorator for data produced by Powershell
+    Select-String command, which has a shortened alias "sls", when searched in JSONL files.
+    So when we do "sls -Path some.json -Pattern some_pattern", we can wrap the content with
+    this component and get a basic decoration in specs.
+*@
+@namespace DotNaut.Content
+
+@using Microsoft.AspNetCore.Components.Rendering
+@using System.Text.RegularExpressions
+@using System.Text.Json
+
+@if (SimpleView)
+{
+    <code>
+        <pre>
+            @foreach (var match in BuildLines())
+            {
+                @IndentJson(match.Content)
+                @Environment.NewLine
+            }
+        </pre>
+    </code>
+} else
+{
+    foreach (var match in BuildLines())
+    {
+        <p>
+            <dl>
+                <dt>File:Line</dt>
+                <dd>@(match.File):@(match.Line)</dd>
+            </dl>
+
+            <code>
+                <pre>@IndentJson(match.Content)</pre>
+            </code>
+        </p>
+    }
+}
+
+@code {
+    [Parameter]
+    public bool Indented { get; set; } = true;
+
+    [Parameter]
+    public bool SimpleView { get; set; } = false;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    public string IndentJson(JsonDocument doc)
+    {
+        using var stream = new MemoryStream();
+        using var writer = new Utf8JsonWriter(
+            stream,
+            new JsonWriterOptions
+            {
+                Indented = Indented
+            }
+        );
+
+        doc.WriteTo(writer);
+        writer.Flush();
+        doc.Dispose();
+
+        return System.Text.Encoding.UTF8.GetString(stream.ToArray());
+    }
+
+    public IEnumerable<(string File, string Line, JsonDocument Content)> BuildLines()
+    {
+        var builder = new RenderTreeBuilder();
+        ChildContent?.Invoke(builder);
+        var frames = builder.GetFrames().Array;
+        var lines = frames
+            .Where(frame => frame.TextContent != null)
+            .SelectMany(frame => frame.TextContent.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None))
+            .Where(line => !string.IsNullOrEmpty(line))
+        ;
+
+        var regex = new Regex(@"^(?<file>[^\{]+)\:(?<line>\d+)\:(?<json>.+)$");
+        var matches = lines
+            .Select(line => regex.Match(line))
+            .Where(match => match.Success)
+            .Select(match => (
+                File: match.Groups["file"].Value,
+                Line: match.Groups["line"].Value,
+                Content: JsonDocument.Parse(match.Groups["json"].Value)
+            ))
+        ;
+
+        return matches;
+    }
+}

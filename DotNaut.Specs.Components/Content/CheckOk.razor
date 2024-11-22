@@ -1,0 +1,11 @@
+@namespace DotNaut.Content
+
+<FluentStack Orientation=@Orientation.Horizontal VerticalAlignment=@VerticalAlignment.Center Style="margin-bottom: 16px">
+    <FluentIcon Value="@(new Icons.Filled.Size16.CheckmarkCircle())" Color=@Color.Success />
+    <FluentLabel>@ChildContent</FluentLabel>
+</FluentStack>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

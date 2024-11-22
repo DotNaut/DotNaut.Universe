@@ -1,0 +1,101 @@
+@*
+    TODO:Simplified version if SlsJson.razor (without "sls"). Of course we need some reusing.
+*@
+@namespace DotNaut.Content
+
+@using Microsoft.AspNetCore.Components.Rendering
+@using System.Text.RegularExpressions
+@using System.Text.Json
+
+@{
+    var builder = new RenderTreeBuilder();
+    ChildContent?.Invoke(builder);
+    var frames = builder.GetFrames().Array;
+    var lines = frames
+        .Where(frame => frame.TextContent != null)
+        .SelectMany(frame => frame.TextContent.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None))
+        .Where(line => !string.IsNullOrEmpty(line))
+    ;
+}
+
+<code>
+    <pre>
+        @foreach (var line in BuildLines())
+        {
+            <a>@HighlightJson(line)</a>
+
+            @Environment.NewLine
+        }
+    </pre>
+</code>
+
+@code {
+    [Parameter]
+    public bool Indented { get; set; } = true;
+
+    //TODO:Might want to support multiple highlights
+    [Parameter]
+    public object Highlight { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    public string IndentJson(JsonDocument doc)
+    {
+        using var stream = new MemoryStream();
+        using var writer = new Utf8JsonWriter(
+            stream,
+            new JsonWriterOptions
+            {
+                Indented = Indented
+            }
+        );
+
+        doc.WriteTo(writer);
+        writer.Flush();
+        doc.Dispose();
+
+        return System.Text.Encoding.UTF8.GetString(stream.ToArray());
+    }
+
+    public MarkupString HighlightJson(JsonDocument doc)
+    {
+        var result = IndentJson(doc);
+
+        if (Highlight != null)
+        {
+            var highlight = Highlight.ToString();
+            //result = result.Replace(highlight, $"<mark>{highlight}</mark>");
+            result = result.Replace(highlight, $"<mark>{highlight}</mark>");
+        }
+
+        return (MarkupString)result;
+    }
+
+    public IEnumerable<JsonDocument> BuildLines()
+    {
+        var builder = new RenderTreeBuilder();
+        ChildContent?.Invoke(builder);
+        var frames = builder.GetFrames().Array;
+        var lines = frames
+            .Where(frame => frame.TextContent != null)
+            .SelectMany(frame => frame.TextContent.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None))
+            .Where(line => !string.IsNullOrWhiteSpace(line))
+            //.Select(line => JsonDocument.Parse(line))
+            .Select(line =>
+            {
+                try
+                {
+                    var result = JsonDocument.Parse(line);
+                    return result;
+                } 
+                catch (Exception e)
+                {
+                    return JsonDocument.Parse($"\"{line}\"");
+                }
+            })
+        ;
+
+        return lines;
+    }
+}
