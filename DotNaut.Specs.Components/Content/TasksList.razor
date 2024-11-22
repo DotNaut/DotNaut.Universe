@@ -1,6 +1,23 @@
 @namespace DotNaut.Content
-@inherits NamedList<DotNaut.Project.ITask>
+@using DotNaut.Project
+<NamedList TItem="DotNaut.Project.ITask" Parent=@Parent Comparer=@(new TaskComparer())>
+    <Prefix>@(context.IsDone() ? "[DONE]" : "[TODO]")</Prefix>
+</NamedList>
 
-@{
-    base.BuildRenderTree(__builder);
+@code {
+    [Parameter]
+    public ComponentBase Parent { get; set; }
+
+    public class TaskComparer
+        : IComparer<ITask>
+    {
+        //TODO:Tests would be good
+        int IComparer<ITask>.Compare(ITask left, ITask right)
+        {
+            return left.IsDone() 
+                ? (right.IsDone() ? 0 : 1) 
+                : (right.IsDone() ? -1 : 0)
+            ;
+        }
+    }
 }

@@ -6,25 +6,34 @@
 
 @{
     var parentType = Parent.GetType();
-    var projects = parentType
+    var list = parentType
         .Assembly
         .GetTypes()
         .Where(type => type.FullName.StartsWith($"{parentType.Namespace}."))
         .Where(type => typeof(TItem).IsAssignableFrom(type))
         .Select(type => (
-            Project: (TItem)Activator.CreateInstance(type),
+            Item: (TItem)Activator.CreateInstance(type),
             Route: type.GetCustomAttributes(false).OfType<RouteAttribute>().FirstOrDefault()
         ))
     ;
+
+    if (Comparer != null)
+    {
+        list = list.OrderBy(item => item.Item, Comparer!);
+    }
 }
 
 <ul>
-    @foreach (var item in projects)
+    @foreach (var item in list)
     {
         <li>
+            @Prefix?.Invoke(item.Item)
+
             <a href=@item.Route?.Template>
-                @((item.Project as DotNaut.Ontology.INamed).Get())
+                @((item.Item as DotNaut.Ontology.INamed).Get())
             </a>
+
+            @Suffix?.Invoke(item.Item)
         </li>
     }
 </ul>
@@ -32,4 +41,13 @@
 @code {
     [Parameter]
     public ComponentBase Parent { get; set; }
+
+    [Parameter]
+    public IComparer<TItem>? Comparer { get; set; }
+
+    [Parameter]
+    public RenderFragment<TItem>? Prefix { get; set; }
+
+    [Parameter]
+    public RenderFragment<TItem>? Suffix { get; set; }
 }
