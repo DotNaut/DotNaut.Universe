@@ -1,0 +1,72 @@
+﻿@page "/labs/support-routines"
+
+<h1>Support routines</h1>
+
+<p>
+    This is a very rough idea!
+</p>
+
+<p>
+    As developers, we often face repetitive and monotonous tasks, particularly when supporting 
+    software projects. These tasks often involve conducting various types of investigations—digging 
+    through logs, databases, chats, and more. Gathering all the necessary information, analyzing 
+    it, and producing meaningful results can be made significantly more efficient and comfortable
+    with the support of well-designed tools.
+</p>
+
+<p>
+    To start, we're experimenting with simple, basic approaches, such as processing JSON files and
+    filtering them using the "sls" command, supplemented with additional file information. While
+    these initial steps might not seem highly practical and implementation is very primitive, they
+    serve as a foundation—a first baby step toward a more streamlined process. 
+</p>
+
+<p>
+    Consolidating everything into a single Razor page could prove valuable for research, result
+    reporting, and further reuse of findings. 
+</p>
+
+<section>
+    <h2>ToDo</h2>
+
+    <ul>
+        <li>
+            We need a total review of the implementation by making it more flexible and configurable.
+            Right now it is very primitive, just a proof of concept.
+        </li>
+    </ul>
+</section>
+
+<section>
+    <h2>Json</h2>
+
+    <p>
+        Simple example of <code>@typeof(DotNaut.Content.Json).FullName</code> component usage with
+        indentation and highlighting.
+    </p>
+
+    <Json Highlight=@("First") Indented=@true>
+        {"Id":1,"Name":"First developer"}
+        {"Id":2,"Name":"Second developer"}
+    </Json>
+</section>
+
+
+<section>
+    <h2>SlsJson</h2>
+
+    <p>
+        Simple example of <code>@typeof(DotNaut.Content.SlsJson).FullName</code> component usage with
+        indentation. Such content is usually provided by "sls" command (which is a shortened form of
+        Select-String cmdlet in Powershell) like <code>sls -Path some.json -Pattern some_pattern</code>.
+    </p>
+
+    <SlsJson Indented=@true>
+        file.ext:64:{"Id":1,"Name":"First developer"}
+        file.ext:128:{"Id":2,"Name":"Second developer"}
+    </SlsJson>
+</section>
+
+@code {
+
+}
