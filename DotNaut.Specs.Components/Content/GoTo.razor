@@ -1,0 +1,13 @@
+@inject NavigationManager navigator
+
+<a href=@TargetPath>@ChildContent</a>
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    public string TargetPath => $"{new Uri(navigator.Uri).PathAndQuery}#{Id}";
+}
