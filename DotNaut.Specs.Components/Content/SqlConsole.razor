@@ -1,0 +1,132 @@
+@namespace DotNaut.Content
+@using Microsoft.AspNetCore.Components.RenderTree
+@using Microsoft.AspNetCore.Components.Rendering
+@using Microsoft.Data.SqlClient
+@using System.Data
+@using System.Reflection
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration configuration
+@inject IRenderFragmentWriter renderer
+
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
+    <FluentSelect TOption="IConfigurationSection"
+    Items=@Configs
+    OptionValue="@(config => config.Key)"
+    OptionText="@(config => config.Key)"
+    Placeholder="Choose a connection config"
+    @bind-SelectedOption="@SelectedConfig" />
+
+    @if (SelectedConfig != null)
+    {
+        <FluentButton Appearance="Appearance.Accent" OnClick=@Run>Run</FluentButton>
+    }
+
+    @if (Done)
+    {
+        <FluentIcon Value="@(new Icons.Filled.Size24.CheckmarkCircle())" Color=@Color.Success />
+    }
+</FluentStack>
+
+
+<code>
+    <pre style="overflow-y:scroll;max-height:200px">@ChildContent</pre>
+</code>
+
+@* TODO:DataTable renderer component *@
+@if (Table != null) {
+    <table>
+        <thead>
+            <tr>
+                @foreach (DataColumn column in Table.Columns)
+                {
+                    <th>@column.ColumnName</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (DataRow row in Table.Rows)
+            {
+                <tr>
+                    @foreach (DataColumn column in Table.Columns)
+                    {
+                        <td>@row[column]</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (Error != null)
+{
+    <div style="background-color: #fee; padding: 1rem; color: #c00">
+        @Error
+    </div>
+}
+
+@code {
+    [Parameter]
+    public required string ConfigSection { get; set; }
+
+    [Parameter]
+    public required RenderFragment ChildContent { get; set; }
+
+    public IEnumerable<IConfigurationSection>? Configs { get; set; }
+
+    public IConfigurationSection? SelectedConfig { get; set; }
+
+    public int MaxRows { get; set; } = 10;
+
+    public DataTable Table { get; set; }
+
+    public string Error { get; set; }
+
+    public bool Done { get; set; }
+
+    protected override Task OnParametersSetAsync()
+    {
+        var section = configuration.GetSection(ConfigSection);
+        //TODO: if (section == null)
+        Configs = section.GetChildren();
+
+
+        return base.OnParametersSetAsync();
+    }
+
+    public async void Run()
+    {
+        Error = null;
+        Done = false;
+
+        var sql = renderer.Stringify(ChildContent);
+        var statements = sql.Split(
+            $"{Environment.NewLine}GO{Environment.NewLine}", 
+            StringSplitOptions.RemoveEmptyEntries
+        );
+
+        using var connection = new SqlConnection(SelectedConfig.Value);
+
+        try
+        {
+            connection.Open();
+
+            //TODO:Support multiple tables, limit numbers of records in each table, scalar/void returns
+            //TODO:Better support for multiple statements (maybe tabular results)
+
+            foreach (var statement in statements)
+            {
+                using var command = new SqlCommand(statement, connection);
+
+                using var reader = command.ExecuteReader();
+                Table = new DataTable();
+                Table.Load(reader);
+            }
+
+            Done = true;
+        }
+        catch (Exception e)
+        {
+            Error = e.Message;
+        }
+    }
+}

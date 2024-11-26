@@ -35,8 +35,10 @@ public class RenderFragmentWriter
 				//     Write(frame, writer);
 				//     writer.Write($"</{frame.ComponentType.FullName}>");
 				//     break;
+				case RenderTreeFrameType.None:
+					break;
 				default:
-					throw new NotSupportedException();
+					throw new NotSupportedException($"Frame type {frame.FrameType} not supported");
 			}
 		}
 	}
