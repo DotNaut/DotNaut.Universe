@@ -32,30 +32,7 @@
     <pre style="overflow-y:scroll;max-height:200px">@ChildContent</pre>
 </code>
 
-@* TODO:DataTable renderer component *@
-@if (Table != null) {
-    <table>
-        <thead>
-            <tr>
-                @foreach (DataColumn column in Table.Columns)
-                {
-                    <th>@column.ColumnName</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (DataRow row in Table.Rows)
-            {
-                <tr>
-                    @foreach (DataColumn column in Table.Columns)
-                    {
-                        <td>@row[column]</td>
-                    }
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<DataTableView Table=@Table />
 
 @if (Error != null)
 {
@@ -70,6 +47,9 @@
 
     [Parameter]
     public required RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public Action<SqlConnection>? CustomAction { get; set; }
 
     public IEnumerable<IConfigurationSection>? Configs { get; set; }
 
@@ -98,28 +78,34 @@
         Error = null;
         Done = false;
 
-        var sql = renderer.Stringify(ChildContent);
-        var statements = sql.Split(
-            $"{Environment.NewLine}GO{Environment.NewLine}", 
-            StringSplitOptions.RemoveEmptyEntries
-        );
-
         using var connection = new SqlConnection(SelectedConfig.Value);
 
         try
         {
-            connection.Open();
-
-            //TODO:Support multiple tables, limit numbers of records in each table, scalar/void returns
-            //TODO:Better support for multiple statements (maybe tabular results)
-
-            foreach (var statement in statements)
+            if (CustomAction != null)
             {
-                using var command = new SqlCommand(statement, connection);
+                CustomAction(connection);
+            }
+            else
+            {
+                var sql = renderer.Stringify(ChildContent);
+                var statements = sql.Split(
+                    $"{Environment.NewLine}GO{Environment.NewLine}",
+                    StringSplitOptions.RemoveEmptyEntries
+                );
 
-                using var reader = command.ExecuteReader();
-                Table = new DataTable();
-                Table.Load(reader);
+                connection.Open();
+
+                //TODO:Support multiple tables, limit numbers of records in each table, scalar/void returns
+                //TODO:Better support for multiple statements (maybe tabular results)
+                foreach (var statement in statements)
+                {
+                    using var command = new SqlCommand(statement, connection);
+
+                    using var reader = command.ExecuteReader();
+                    Table = new DataTable();
+                    Table.Load(reader);
+                }
             }
 
             Done = true;
