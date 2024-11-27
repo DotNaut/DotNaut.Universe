@@ -23,18 +23,9 @@ public class RenderFragmentWriter
 			{
 				//TODO:I had an implementation in StanEgo sources.
 				case RenderTreeFrameType.Text:
+				case RenderTreeFrameType.Markup:
 					writer.Write(frame.TextContent);
 					break;
-				// case RenderTreeFrameType.Element:
-				//     writer.Write($"<{frame.ElementName}>");
-				//     Write(frame, writer);
-				//     writer.Write($"</{frame.ElementName}>");
-				//     break;
-				// case RenderTreeFrameType.Component:
-				//     writer.Write($"<{frame.ComponentType.FullName}>");
-				//     Write(frame, writer);
-				//     writer.Write($"</{frame.ComponentType.FullName}>");
-				//     break;
 				case RenderTreeFrameType.None:
 					break;
 				default:
