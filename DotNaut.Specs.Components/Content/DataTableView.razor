@@ -1,0 +1,33 @@
+@namespace DotNaut.Content
+@using System.Data
+
+@if (Table != null)
+{
+    <table>
+        <thead>
+            <tr>
+                @foreach (DataColumn column in Table.Columns)
+                {
+                    <th>@column.ColumnName</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (DataRow row in Table.Rows)
+            {
+                <tr>
+                    @foreach (DataColumn column in Table.Columns)
+                    {
+                        <td>@row[column]</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public DataTable? Table { get; set; }
+}
+
