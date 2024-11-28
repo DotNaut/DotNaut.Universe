@@ -27,38 +27,60 @@ namespace DotNaut.Data.Map;
 /// </example>
 public class PropertyMap<T>
 {
-    private readonly List<PropertyInfo> _props = new();
+	private readonly List<PropertyInfo> _props = new();
 
     public PropertyMap<T> Add<U>(string name, Expression<Func<T, U>> property)
     {
-        var member = property.Body as MemberExpression;
-        if (member == null)
-        {
-            //TODO:
-            throw new ArgumentException("Expression should return a property", nameof(property));
-        }
+		var member = property.Body as MemberExpression;
+		if (member == null)
+		{
+			//TODO:
+			throw new ArgumentException("Expression should return a property", nameof(property));
+		}
 
-        var propertyInfo = member.Member as PropertyInfo;
-        if (propertyInfo == null)
-        {
-            //TODO:
-            throw new ArgumentException("Expression should return a property", nameof(property));
-        }
+		var propertyInfo = member.Member as PropertyInfo;
+		if (propertyInfo == null)
+		{
+			//TODO:
+			throw new ArgumentException("Expression should return a property", nameof(property));
+		}
 
         _props.Add(propertyInfo);
 
         return this;
     }
 
-    public T Map(IDataRecord reader, T item)
+	public PropertyMap<T> Add(string name)
+	{
+		_props.Add(null);
+
+		return this;
+	}
+
+	public T? Map(IDataRecord reader, T item)
     {
-        for (var index = 0; index < reader.FieldCount; index++)
+		var fields = reader.FieldCount;
+		if (_props.Count < fields)
+		{
+			fields = _props.Count;
+		}
+
+		for (var index = 0; index < fields; index++)
         {
-            var value = reader.GetValue(index);
-            var property = _props[index];
-            var converted = Convert.ChangeType(value, property.PropertyType);
-            property.SetValue(item, converted);
-        }
+			var property = _props[index];
+			if (property == null)
+			{
+				continue;
+			}
+
+			var value = reader.GetValue(index);
+
+            if (value != null)
+			{
+				var converted = Convert.ChangeType(value, property.PropertyType);
+				property.SetValue(item, converted);
+			}
+		}
 
         return item;
     }
