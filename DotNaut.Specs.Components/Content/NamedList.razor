@@ -1,21 +1,13 @@
+@using DotNaut.Ontology
 @using Microsoft.AspNetCore.Components
 
 @namespace DotNaut.Content
-@typeparam TItem
+@typeparam TItem where TItem : INamed
 
+@inject IRouteDiscovery<TItem> RouteDiscovery
 
 @{
-    var parentType = Parent.GetType();
-    var list = parentType
-        .Assembly
-        .GetTypes()
-        .Where(type => type.FullName.StartsWith($"{parentType.Namespace}."))
-        .Where(type => typeof(TItem).IsAssignableFrom(type))
-        .Select(type => (
-            Item: (TItem)Activator.CreateInstance(type),
-            Route: type.GetCustomAttributes(false).OfType<RouteAttribute>().FirstOrDefault()
-        ))
-    ;
+    var list = RouteDiscovery.Discover(Parent.GetType());
 
     if (Comparer != null)
     {
@@ -30,7 +22,7 @@
             @Prefix?.Invoke(item.Item)
 
             <a href=@item.Route?.Template>
-                @((item.Item as DotNaut.Ontology.INamed).Get())
+                @((item.Item as INamed).Get())
             </a>
 
             @Suffix?.Invoke(item.Item)
