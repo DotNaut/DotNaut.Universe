@@ -1,0 +1,45 @@
+@using DotNaut.Content
+@namespace DotNaut.Infrastructure
+@inject IRouteDiscovery<IEnvironment> RouteDiscovery
+
+@code {
+    public bool HasEnvironments => Environments != null && Environments.Any();
+}
+
+@if (HasEnvironments)
+{
+    <FluentSelect TOption="string"
+                  Items=@Environments
+                  OptionValue="@(env => env)"
+                  OptionText="@(env => env)"
+                  Placeholder="Choose a connection config"
+                  @bind-SelectedOption="@SelectedEnvironment" 
+    />
+
+}
+else
+{
+    <div class="alert alert-warning" role="alert">
+        No environments found.
+    </div>
+}
+
+@code {
+    public IEnumerable<string>? Environments { get; private set; }
+
+    [Parameter]
+    public string? SelectedEnvironment { get; set; }
+
+    [Parameter]
+    public required Type RootSection { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        Environments = RouteDiscovery
+            .Discover(RootSection)
+            .Select(item => item.Item.Get())
+        ;
+    }
+}
