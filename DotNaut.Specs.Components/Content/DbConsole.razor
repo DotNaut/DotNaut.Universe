@@ -1,12 +1,14 @@
 @namespace DotNaut.Content
 @using Microsoft.AspNetCore.Components.RenderTree
 @using Microsoft.AspNetCore.Components.Rendering
-@using Microsoft.Data.SqlClient
 @using System.Data
 @using System.Reflection
 @using Microsoft.Extensions.Configuration
+@typeparam TConnection where TConnection : IDbConnection, new()
 @inject IConfiguration configuration
 @inject IRenderFragmentWriter renderer
+
+@* TODO:Support textarea? Or embed external editor *@
 
 <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
     <FluentSelect TOption="IConfigurationSection"
@@ -46,10 +48,16 @@
     public required string ConfigSection { get; set; }
 
     [Parameter]
-    public required RenderFragment ChildContent { get; set; }
+    public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
-    public Action<SqlConnection>? CustomAction { get; set; }
+    public string? Script { get; set; }
+
+    [Parameter]
+    public Action<TConnection>? CustomAction { get; set; }
+
+    [Parameter]
+    public string StatementDelimiter { get; set; } = $";\n";
 
     public IEnumerable<IConfigurationSection>? Configs { get; set; }
 
@@ -78,7 +86,8 @@
         Error = null;
         Done = false;
 
-        using var connection = new SqlConnection(SelectedConfig.Value);
+        using var connection = new TConnection();
+        connection.ConnectionString = SelectedConfig?.Value;
 
         try
         {
@@ -88,9 +97,19 @@
             }
             else
             {
-                var sql = renderer.Stringify(ChildContent);
+                var sql = Script;
+                if (ChildContent != null)
+                {
+                    sql = renderer.Stringify(ChildContent);
+                }
+
+                if (sql == null)
+                {
+                    throw new InvalidOperationException("No code provided");
+                }
+
                 var statements = sql.Split(
-                    $"{Environment.NewLine}GO{Environment.NewLine}",
+                    StatementDelimiter,
                     StringSplitOptions.RemoveEmptyEntries
                 );
 
@@ -100,7 +119,8 @@
                 //TODO:Better support for multiple statements (maybe tabular results)
                 foreach (var statement in statements)
                 {
-                    using var command = new SqlCommand(statement, connection);
+                    using var command = connection.CreateCommand();
+                    command.CommandText = statement;
 
                     using var reader = command.ExecuteReader();
                     Table = new DataTable();
