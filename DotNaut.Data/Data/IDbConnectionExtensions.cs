@@ -15,4 +15,16 @@ public static class IDbConnectionExtensions
 		command.CommandText = commandText;
 		command.ExecuteNonQuery();
 	}
+
+	public static IDataReader ExecuteReader(this IDbConnection connection, string commandText)
+	{
+		if (connection.State != ConnectionState.Open)
+		{
+			connection.Open();
+		}
+
+		using var command = connection.CreateCommand();
+		command.CommandText = commandText;
+		return command.ExecuteReader();
+	}
 }
