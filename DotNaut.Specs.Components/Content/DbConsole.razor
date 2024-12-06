@@ -1,12 +1,10 @@
 @namespace DotNaut.Content
-@using Microsoft.AspNetCore.Components.RenderTree
-@using Microsoft.AspNetCore.Components.Rendering
 @using System.Data
 @using System.Reflection
 @using Microsoft.Extensions.Configuration
 @typeparam TConnection where TConnection : IDbConnection, new()
 @inject IConfiguration configuration
-@inject IRenderFragmentWriter renderer
+@inject IComponentRenderer renderer
 
 @* TODO:Support textarea? Or embed external editor *@
 @* TODO:
@@ -61,7 +59,7 @@
     public string? Script { get; set; }
 
     [Parameter]
-    public Action<string, TConnection>? CustomAction { get; set; }
+    public Func<string, TConnection, Task>? CustomAction { get; set; }
 
     [Parameter]
     public string[] StatementDelimiters { get; set; } = [";\n", ";\r"];
@@ -100,14 +98,14 @@
         {
             if (CustomAction != null)
             {
-                CustomAction(SelectedConfig.Key, connection);
+                await InvokeAsync(() => CustomAction(SelectedConfig.Key, connection));
             }
             else
             {
                 var sql = Script;
                 if (ChildContent != null)
                 {
-                    sql = renderer.Stringify(ChildContent);
+                    sql = await renderer.RenderFragment(ChildContent);
                 }
 
                 if (sql == null)
@@ -142,5 +140,7 @@
         {
             Error = e.Message;
         }
+
+        await InvokeAsync(StateHasChanged);
     }
 }
