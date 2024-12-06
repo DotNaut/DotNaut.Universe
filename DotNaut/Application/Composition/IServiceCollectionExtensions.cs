@@ -22,4 +22,13 @@ public static class IServiceCollectionExtensions
 
 		return services;
 	}
+
+	public static IServiceCollection UseComposition<T>(this IServiceCollection services)
+		where T : IComposition, new()
+	{
+		var composition = new T();
+		ICompositionContext context = new CompositionContext(services);
+		composition.Compose(context);
+		return services;
+	}	
 }

@@ -1,14 +1,19 @@
 @namespace DotNaut.Content
-@using Microsoft.AspNetCore.Components.RenderTree
-@using Microsoft.AspNetCore.Components.Rendering
 @using System.Data
 @using System.Reflection
 @using Microsoft.Extensions.Configuration
 @typeparam TConnection where TConnection : IDbConnection, new()
 @inject IConfiguration configuration
-@inject IRenderFragmentWriter renderer
+@inject IComponentRenderer renderer
 
 @* TODO:Support textarea? Or embed external editor *@
+@* TODO:
+    We can work with some interface which providers a DB/SQL statements as an output. 
+    This interface can be implented by embedded resources, local file, Razor component, 
+    set of components, etc.
+    Maybe scripts can be somehow injected into the DI?
+    Dangerous scripts with confirmations.
+*@
 
 <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
     <FluentSelect TOption="IConfigurationSection"
@@ -54,10 +59,10 @@
     public string? Script { get; set; }
 
     [Parameter]
-    public Action<TConnection>? CustomAction { get; set; }
+    public Func<string, TConnection, Task>? CustomAction { get; set; }
 
     [Parameter]
-    public string StatementDelimiter { get; set; } = $";\n";
+    public string[] StatementDelimiters { get; set; } = [";\n", ";\r"];
 
     public IEnumerable<IConfigurationSection>? Configs { get; set; }
 
@@ -93,14 +98,14 @@
         {
             if (CustomAction != null)
             {
-                CustomAction(connection);
+                await InvokeAsync(() => CustomAction(SelectedConfig.Key, connection));
             }
             else
             {
                 var sql = Script;
                 if (ChildContent != null)
                 {
-                    sql = renderer.Stringify(ChildContent);
+                    sql = await renderer.RenderFragment(ChildContent);
                 }
 
                 if (sql == null)
@@ -108,10 +113,11 @@
                     throw new InvalidOperationException("No code provided");
                 }
 
-                var statements = sql.Split(
-                    StatementDelimiter,
-                    StringSplitOptions.RemoveEmptyEntries
-                );
+                var statements = sql
+                    .Split(StatementDelimiters, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(statement => statement.Trim())
+                    .Where(statement => !string.IsNullOrWhiteSpace(statement))
+                ;
 
                 connection.Open();
 
@@ -134,5 +140,7 @@
         {
             Error = e.Message;
         }
+
+        await InvokeAsync(StateHasChanged);
     }
 }
