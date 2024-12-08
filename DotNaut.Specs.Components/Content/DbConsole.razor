@@ -17,11 +17,12 @@
 
 <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
     <FluentSelect TOption="IConfigurationSection"
-    Items=@Configs
-    OptionValue="@(config => config.Key)"
-    OptionText="@(config => config.Key)"
-    Placeholder="Choose a connection config"
-    @bind-SelectedOption="@SelectedConfig" />
+        Items=@Configs
+        OptionValue="@(config => config.Key)"
+        OptionText="@(config => config.Key)"
+        Placeholder="Choose a connection config"
+        @bind-SelectedOption="@SelectedConfig" 
+    />
 
     @if (SelectedConfig != null)
     {
@@ -62,6 +63,9 @@
     public Func<string, TConnection, Task>? CustomAction { get; set; }
 
     [Parameter]
+    public Func<string, IDbCommand, Task>? ExecuteAction { get; set; }
+
+    [Parameter]
     public string[] StatementDelimiters { get; set; } = [";\n", ";\r"];
 
     public IEnumerable<IConfigurationSection>? Configs { get; set; }
@@ -70,9 +74,9 @@
 
     public int MaxRows { get; set; } = 10;
 
-    public DataTable Table { get; set; }
+    public DataTable? Table { get; set; }
 
-    public string Error { get; set; }
+    public string? Error { get; set; }
 
     public bool Done { get; set; }
 
@@ -91,8 +95,14 @@
         Error = null;
         Done = false;
 
+        if (SelectedConfig == null)
+        {
+            Error = "No connection config selected";
+            return;
+        }
+
         using var connection = new TConnection();
-        connection.ConnectionString = SelectedConfig?.Value;
+        connection.ConnectionString = SelectedConfig.Value;
 
         try
         {
@@ -128,9 +138,16 @@
                     using var command = connection.CreateCommand();
                     command.CommandText = statement;
 
-                    using var reader = command.ExecuteReader();
-                    Table = new DataTable();
-                    Table.Load(reader);
+                    if (ExecuteAction != null)
+                    {
+                        await ExecuteAction(SelectedConfig.Key, command);
+                    }
+                    else
+                    {
+                        using var reader = command.ExecuteReader();
+                        Table = new DataTable();
+                        Table.Load(reader);
+                    }
                 }
             }
 

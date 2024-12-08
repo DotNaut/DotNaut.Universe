@@ -1,0 +1,18 @@
+table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0.2rem;
+	border: 1px solid #c6c6c6;
+}
+
+th {
+	background-color: #f2f2f2;
+	color: #333;
+	font-weight: bold;
+	text-align: center;
+}
+
+th, td {
+    padding: 0.4rem;
+}
+
