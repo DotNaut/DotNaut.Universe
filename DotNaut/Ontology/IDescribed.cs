@@ -2,9 +2,9 @@
 namespace DotNaut.Ontology;
 
 /// <remarks>
-/// Something with name
+/// Something with description
 /// </remarks>
-public interface INamed
+public interface IDescribed
 {
-    string Name { get; }
+    string Description { get; }
 }

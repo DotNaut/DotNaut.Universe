@@ -39,7 +39,7 @@ else
 
         Environments = RouteDiscovery
             .Discover(RootSection)
-            .Select(item => item.Item.Get())
+            .Select(item => item.Item.Name)
         ;
     }
 }

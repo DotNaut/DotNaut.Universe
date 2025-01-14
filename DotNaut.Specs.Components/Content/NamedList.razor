@@ -22,7 +22,7 @@
             @Prefix?.Invoke(item.Item)
 
             <a href=@item.Route?.Template>
-                @((item.Item as INamed).Get())
+                @((item.Item as INamed).Name)
             </a>
 
             @Suffix?.Invoke(item.Item)

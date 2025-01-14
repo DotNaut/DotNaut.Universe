@@ -18,7 +18,7 @@ public abstract class SqlObject
     public required string Name { get; set; }
 
     // TODO:Convention
-    string INamed.Get() => $"[{Schema}].[{Name}]";
+    string INamed.Name => $"[{Schema}].[{Name}]";
 
-    public string FullName => (this as INamed).Get();
+    public string FullName => (this as INamed).Name;
 }

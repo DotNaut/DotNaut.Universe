@@ -1,3 +1,4 @@
+// Copyright (c) DotNaut Ltd.
 namespace DotNaut.Ontology;
 
 /// <summary>
