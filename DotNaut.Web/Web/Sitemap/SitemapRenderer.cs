@@ -6,7 +6,16 @@ namespace DotNaut.Web.Sitemap;
 public class SitemapRenderer
 	: ISitemapRenderer
 {
-	public async Task WriteAsync(XmlWriter writer, SitemapOptions options, IEnumerable<ISitemapUrl> urls)
+	private readonly SitemapOptions _options;
+	private readonly ISitemapScanner _scanner;
+
+	public SitemapRenderer(SitemapOptions options, ISitemapScanner scanner)
+	{
+		_options = options;
+		_scanner = scanner;
+	}
+
+	public async Task WriteAsync(XmlWriter writer)
 	{
 		async Task WritePropertyAsync(string elementName, string? value)
 		{
@@ -18,7 +27,7 @@ public class SitemapRenderer
 
 		await writer.WriteStartDocumentAsync();
 		await writer.WriteStartElementAsync(null, "urlset", NamespaceInfo.SchemaNamespace);
-		foreach (var url in urls)
+		foreach (var url in await _scanner.ScanAsync())
 		{
 			if (url != null)
 			{
@@ -26,7 +35,7 @@ public class SitemapRenderer
 
 				var uri = Uri.IsWellFormedUriString(url.Location, UriKind.Absolute)
 					? new Uri(url.Location)
-					: new Uri(options.BaseUrl, url.Location)
+					: new Uri(_options.BaseUrl, url.Location)
 				;
 
 				await writer.WriteElementStringAsync(null, "loc", null, uri.ToString());

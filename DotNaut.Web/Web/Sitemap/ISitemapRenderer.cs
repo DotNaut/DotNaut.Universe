@@ -5,5 +5,5 @@ namespace DotNaut.Web.Sitemap;
 
 public interface ISitemapRenderer
 {
-	Task WriteAsync(XmlWriter writer, SitemapOptions options, IEnumerable<ISitemapUrl> urls);
+	Task WriteAsync(XmlWriter writer);
 }
