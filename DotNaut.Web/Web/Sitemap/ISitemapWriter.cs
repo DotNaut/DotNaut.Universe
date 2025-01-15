@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace DotNaut.Web.Sitemap;
 
-public interface ISitemapRenderer
+public interface ISitemapWriter
 {
 	Task WriteAsync(XmlWriter writer);
 }

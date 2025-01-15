@@ -12,7 +12,7 @@ public static class IEndpointsExtensions
 	{
 		endpoints.MapGet(
 			ISitemapUrl.DefaultRoute,
-			async (HttpContext context, ISitemapRenderer renderer) => await renderer.WriteAsync(context)
+			async (HttpContext context, ISitemapWriter renderer) => await renderer.WriteAsync(context)
 		);
 	}
 }

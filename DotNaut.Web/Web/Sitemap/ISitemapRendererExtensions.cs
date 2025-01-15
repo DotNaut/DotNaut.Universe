@@ -8,7 +8,7 @@ namespace DotNaut.Web.Sitemap;
 public static class ISitemapRendererExtensions
 {
 	public static async Task WriteAsync(
-		this ISitemapRenderer renderer, 
+		this ISitemapWriter renderer, 
 		HttpContext context
 	)
 	{

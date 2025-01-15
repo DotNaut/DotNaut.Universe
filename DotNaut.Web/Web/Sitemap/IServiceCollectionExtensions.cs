@@ -10,7 +10,7 @@ public static class IServiceCollectionExtensions
 		string baseUrl
 	)
 	{
-		services.AddSingleton<ISitemapRenderer, SitemapRenderer>();
+		services.AddSingleton<ISitemapWriter, SitemapWriter>();
 		services.AddSingleton<ISitemapScanner, AssemblySitemapScanner<TProgram>>();
 		// TODO:
 		// Better to create an IOptions<SitemapOptions> and inject it.

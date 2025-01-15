@@ -3,13 +3,13 @@ using System.Xml;
 
 namespace DotNaut.Web.Sitemap;
 
-public class SitemapRenderer
-	: ISitemapRenderer
+public class SitemapWriter
+	: ISitemapWriter
 {
 	private readonly SitemapOptions _options;
 	private readonly ISitemapScanner _scanner;
 
-	public SitemapRenderer(SitemapOptions options, ISitemapScanner scanner)
+	public SitemapWriter(SitemapOptions options, ISitemapScanner scanner)
 	{
 		_options = options;
 		_scanner = scanner;
