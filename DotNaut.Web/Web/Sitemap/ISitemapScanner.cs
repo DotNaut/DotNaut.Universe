@@ -3,5 +3,5 @@ namespace DotNaut.Web.Sitemap;
 
 public interface ISitemapScanner
 {
-	Task<IEnumerable<ISitemapUrl>> ScanAsync();
+	Task<IEnumerable<SitemapUrl>> ScanAsync();
 }

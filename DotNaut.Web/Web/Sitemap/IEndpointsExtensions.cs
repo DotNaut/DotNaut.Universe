@@ -11,7 +11,7 @@ public static class IEndpointsExtensions
 		where T : IEndpointRouteBuilder
 	{
 		endpoints.MapGet(
-			ISitemapUrl.DefaultRoute,
+			SitemapUrl.DefaultRoute,
 			async (HttpContext context, ISitemapWriter renderer) => await renderer.WriteAsync(context)
 		);
 	}

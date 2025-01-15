@@ -5,13 +5,17 @@ namespace DotNaut.Web.Sitemap;
 
 public static class IServiceCollectionExtensions
 {
-	public static IServiceCollection AddSitemap<TProgram>(
+	public static IServiceCollection AddStaticSitemap<TProgram>(
 		this IServiceCollection services,
 		string baseUrl
 	)
 	{
+		var scanner = new StaticSitemapScanner<TProgram>();
+		var cached = new SitemapCachedScanner(scanner);
+
+		services.AddSingleton<ISitemapScanner>(cached);
 		services.AddSingleton<ISitemapWriter, SitemapWriter>();
-		services.AddSingleton<ISitemapScanner, AssemblySitemapScanner<TProgram>>();
+
 		// TODO:
 		// Better to create an IOptions<SitemapOptions> and inject it.
 		// Is this a global setting for the site?

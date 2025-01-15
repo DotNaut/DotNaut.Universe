@@ -4,15 +4,9 @@ namespace DotNaut.Web.Sitemap;
 /// <summary>
 /// Sitemap URL info
 /// </summary>
-public interface ISitemapUrl
+public class SitemapUrl
 {
 	public const string DefaultRoute = "/sitemap.xml";
-
-	public const string XmlTagUrl = "url";
-	public const string XmlTagLocation = "loc";
-	public const string XmlTagLastModified = "lastmod";
-	public const string XmlTagChangeFrequency = "changefreq";
-	public const string XmlTagPriority = "priority";
 
 	/// <summary>
 	/// Location URL
@@ -27,7 +21,7 @@ public interface ISitemapUrl
 	/// TODO:Would be nice to demo how it can be used in Razor pages.
 	/// </para>
 	/// </remarks>
-	public string Location { get; }
+	public required string Location { get; set; }
 
 	/// <summary>
 	/// Lat modification of the page
@@ -47,7 +41,7 @@ public interface ISitemapUrl
 	/// return, and search engines may use the information from both sources differently.
 	/// </para>
 	/// </remarks>
-	DateTime? LastModified { get => null; }
+	public DateTime? LastModified { get; set; }
 
 	/// <summary>
 	/// Change frequency
@@ -69,7 +63,7 @@ public interface ISitemapUrl
 	/// marked "never" so that they can handle unexpected changes to those pages.
 	/// </para>
 	/// </remarks>
-	public SitemapChangeFrequency? ChangeFrequency { get => null; }
+	public SitemapChangeFrequency? ChangeFrequency { get; set; }
 
 	/// <summary>
 	/// Priority
@@ -97,5 +91,11 @@ public interface ISitemapUrl
 	/// on your site.
 	/// </para>
 	/// </remarks>
-	public double? Priority { get => null; }
+	public double? Priority { get; set; }
+
+	public static implicit operator SitemapUrl((string Location, string LastModified) sitemap) => new()
+	{
+		Location = sitemap.Location,
+		LastModified = DateTime.Parse(sitemap.LastModified)
+	};
 }

@@ -6,6 +6,14 @@ namespace DotNaut.Web.Sitemap;
 public class SitemapWriter
 	: ISitemapWriter
 {
+	public const string SchemaNamespace = "http://www.sitemaps.org/schemas/sitemap/0.9";
+
+	public const string XmlTagUrl = "url";
+	public const string XmlTagLocation = "loc";
+	public const string XmlTagLastModified = "lastmod";
+	public const string XmlTagChangeFrequency = "changefreq";
+	public const string XmlTagPriority = "priority";
+
 	private readonly SitemapOptions _options;
 	private readonly ISitemapScanner _scanner;
 
@@ -26,7 +34,7 @@ public class SitemapWriter
 		}
 
 		await writer.WriteStartDocumentAsync();
-		await writer.WriteStartElementAsync(null, "urlset", NamespaceInfo.SchemaNamespace);
+		await writer.WriteStartElementAsync(null, "urlset", SchemaNamespace);
 		foreach (var url in await _scanner.ScanAsync())
 		{
 			if (url != null)
@@ -40,8 +48,8 @@ public class SitemapWriter
 
 				await writer.WriteElementStringAsync(null, "loc", null, uri.ToString());
 
-				await WritePropertyAsync(ISitemapUrl.XmlTagLastModified, url.LastModified?.ToString("yyyy-MM-dd"));
-				await WritePropertyAsync(ISitemapUrl.XmlTagChangeFrequency, url.ChangeFrequency?.ToString().ToLowerInvariant());
+				await WritePropertyAsync(XmlTagLastModified, url.LastModified?.ToString("yyyy-MM-dd"));
+				await WritePropertyAsync(XmlTagChangeFrequency, url.ChangeFrequency?.ToString().ToLowerInvariant());
 
 				await writer.WriteEndElementAsync();
 			}
