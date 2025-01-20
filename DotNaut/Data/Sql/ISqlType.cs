@@ -1,4 +1,5 @@
-﻿namespace DotNaut.Data.Sql;
+// Copyright (c) DotNaut Ltd.
+namespace DotNaut.Data.Sql;
 
 /// <remarks>
 /// <para>
