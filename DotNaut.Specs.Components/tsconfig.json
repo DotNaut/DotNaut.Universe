@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "ES2015",
+    "target": "ES2023",
+    "sourceMap": true,
+    "lib": ["ES2015", "DOM"],
+    "moduleResolution": "node"
+  },
+  "exclude": ["node_modules"],
+  "include": ["wwwroot/**/*"]
+}

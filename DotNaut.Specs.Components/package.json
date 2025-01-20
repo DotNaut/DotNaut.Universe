@@ -1,0 +1,13 @@
+{
+  "name": "@todo/universe",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "build": "bun build --entrypoints ./wwwroot/js/common.ts --outdir ./wwwroot/js --format esm"
+  },
+  "keywords": [],
+  "author": "DotNaut",
+  "devDependencies": {
+    "@microsoft/dotnet-js-interop": "^8.0.0"
+  }
+}
