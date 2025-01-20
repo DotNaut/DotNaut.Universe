@@ -18,15 +18,17 @@ export function addCodeSelection(triggerId: string, codeId: string) {
 }
 export function selectChildren(codeId: string) {
   const codeEl = document.getElementById(codeId);
-  if (codeEl) {
-    window.getSelection().selectAllChildren(codeEl);
-	  document.execCommand("copy");
-	  // TODO:later
-	  //try {
-		 // await navigator.clipboard.writeText(text);
-	  //} catch (error) {
-		 // console.error(error.message);
-	  //}
-	DotNetHelpers.showToastSuccess("Copied");    
+	if (codeEl) {
+		window.getSelection().selectAllChildren(codeEl);
+		document.execCommand("copy");
+		window.getSelection().removeAllRanges();
+
+		// TODO:later
+		//try {
+			// await navigator.clipboard.writeText(text);
+		//} catch (error) {
+			// console.error(error.message);
+		//}
+		DotNetHelpers.showToastSuccess("Copied");
   }
 }
