@@ -1,10 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
 	<PropertyGroup>
 		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="node_modules\**" />
+	  <Content Remove="node_modules\**" />
+	  <EmbeddedResource Remove="node_modules\**" />
+	  <None Remove="node_modules\**" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<SupportedPlatform Include="browser" />
@@ -20,4 +27,13 @@
 		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.*-*" />
 	</ItemGroup>
 
+	<Target Name="NpmInstall">
+		<Message Importance="high" Text="Running bun install..." />
+		<Exec Command="bun install" />
+	</Target>
+
+	<Target Name="NpmBuild" DependsOnTargets="NpmInstall" AfterTargets="AfterBuild">
+		<Message Importance="high" Text="Running bun build..." />
+		<Exec Command="bun run build" />
+	</Target>
 </Project>

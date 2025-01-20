@@ -2,9 +2,13 @@
 @using System.Data
 @using System.Reflection
 @using Microsoft.Extensions.Configuration
+@using Microsoft.JSInterop
 @typeparam TConnection where TConnection : IDbConnection, new()
 @inject IConfiguration configuration
 @inject IComponentRenderer renderer
+@inject IJSRuntime JS
+@inject IToastService ToastService
+@implements IAsyncDisposable
 
 @* TODO:Support textarea? Or embed external editor *@
 @* TODO:
@@ -33,11 +37,12 @@
     {
         <FluentIcon Value="@(new Icons.Filled.Size24.CheckmarkCircle())" Color=@Color.Success />
     }
+    <FluentButton Id="@buttonId" IconEnd="@(new Icons.Regular.Size16.DocumentCopy())" Appearance="Appearance.Stealth" Title="Copy" />
 </FluentStack>
 
 
 <code>
-    <pre style="overflow-y:scroll;max-height:200px">@ChildContent</pre>
+    <pre id="@codeId" style="overflow-y:scroll;max-height:200px">@ChildContent</pre>
 </code>
 
 <DataTableView Table=@Table />
@@ -88,6 +93,48 @@
 
 
         return base.OnParametersSetAsync();
+    }
+
+    string buttonId = Guid.NewGuid().ToString();
+    string codeId = Guid.NewGuid().ToString();
+    private DotNetObjectReference<DbConsole<TConnection>>? dotNetHelper;
+    private const string JAVASCRIPT_FILE = "./_content/DotNaut.Specs.Components/js/common.js";
+    private IJSObjectReference? module;
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", JAVASCRIPT_FILE);
+            dotNetHelper = DotNetObjectReference.Create(this);
+            await module.InvokeVoidAsync("DotNetHelpers.setDotNetObjectReference",
+                dotNetHelper);
+            await module.InvokeVoidAsync("addCodeSelection", [buttonId, codeId]);
+        }
+    }
+
+    [JSInvokable]
+    public Task ToastSuccess(string message)
+    {
+        ToastService.ShowSuccess(message);
+        return Task.CompletedTask;
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (module is not null)
+        {
+            try
+            {
+                await module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // Most likely not an error
+            }
+        }
+
+        dotNetHelper?.Dispose();
     }
 
     public async void Run()
