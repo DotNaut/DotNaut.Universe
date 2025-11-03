@@ -3,6 +3,7 @@
 @using System.Reflection
 @using Microsoft.Extensions.Configuration
 @using Microsoft.JSInterop
+@using System.Net
 @typeparam TConnection where TConnection : IDbConnection, new()
 @inject IConfiguration configuration
 @inject IComponentRenderer renderer
@@ -169,6 +170,9 @@
                 {
                     throw new InvalidOperationException("No code provided");
                 }
+
+                // Ensures <, >, &, and others are properly interpreted as SQL syntax
+                sql = WebUtility.HtmlDecode(sql);
 
                 var statements = sql
                     .Split(StatementDelimiters, StringSplitOptions.RemoveEmptyEntries)
